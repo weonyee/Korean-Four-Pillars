@@ -9,6 +9,7 @@ import {
   getDominantElement,
 } from './saju.js';
 import { fetchReading } from './api.js';
+import { initCitySearch } from './city-search.js';
 
 // ── Loading overlay ───────────────────────────────────────────────────────────
 
@@ -69,8 +70,17 @@ function initMobileNav() {
   menuBtn?.addEventListener('click', () => nav.classList.toggle('hidden'));
 }
 
-// ── Result rendering ──────────────────────────────────────────────────────────
-// (Moved to result-render.js — result page handles its own rendering)
+// ── City autocomplete ─────────────────────────────────────────────────────────
+
+function initCityAutocomplete() {
+  const input = document.getElementById('birth-city');
+  if (!input) return;
+  initCitySearch(input, ({ label }) => {
+    input.value = label;
+  });
+}
+
+
 
 // ── Form submission ───────────────────────────────────────────────────────────
 
@@ -86,13 +96,15 @@ function initForm() {
     const gender    = document.getElementById('selected-gender').value;
 
     if (!birthDate) { showToast('Please enter your birth date.');     return; }
-    if (!city)      { showToast('Please enter your city of origin.'); return; }
     if (!zodiac)    { showToast('Please select your zodiac hour.');   return; }
 
     // Validate locally first for instant feedback
     computeFourPillars({ birthDate, zodiac });
 
     showLoading();
+
+    const MIN_LOADING_MS = 2000;
+    const start = Date.now();
 
     fetchReading({ birthDate, zodiac, gender, city })
       .catch(() => {
@@ -102,8 +114,12 @@ function initForm() {
         return { input: { birthDate, zodiac, gender, city }, pillars, dominant };
       })
       .then(() => {
-        const params = new URLSearchParams({ date: birthDate, zodiac, city, gender });
-        window.location.href = `result.html?${params}`;
+        const elapsed   = Date.now() - start;
+        const remaining = Math.max(0, MIN_LOADING_MS - elapsed);
+        setTimeout(() => {
+          const params = new URLSearchParams({ date: birthDate, zodiac, city, gender });
+          window.location.href = `result.html?${params}`;
+        }, remaining);
       });
   });
 }
@@ -114,6 +130,7 @@ function init() {
   initGenderSelector();
   initZodiacSelector();
   initMobileNav();
+  initCityAutocomplete();
   initForm();
 }
 

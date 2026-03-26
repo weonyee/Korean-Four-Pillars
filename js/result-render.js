@@ -28,7 +28,7 @@ export function buildHeroHtml({ dominant, city, birthDate, gender }) {
       </h1>
       <p class="text-lg text-on-surface-variant font-body leading-relaxed max-w-2xl">
         ${ELEMENT_DESCRIPTIONS[dominant]}
-        Born in <strong>${city}</strong> on <strong>${formatted}</strong>.
+        ${city ? `Born in <strong>${city}</strong> on` : 'Born on'} <strong>${formatted}</strong>.
       </p>
     </div>
     <div class="lg:col-span-5 relative">

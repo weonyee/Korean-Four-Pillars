@@ -34,7 +34,7 @@ function validateReading({ birthDate, zodiac, gender, city }) {
   if (!gender || !['male','female'].includes(gender.toLowerCase()))
     errors.push('gender must be "male" or "female"');
   if (!city || typeof city !== 'string' || city.trim().length === 0)
-    errors.push('city is required');
+    errors.push('city is required');  // optional — kept for future use, not enforced
   return errors;
 }
 
@@ -48,8 +48,9 @@ app.post('/api/reading', (req, res) => {
   const { birthDate, zodiac, gender, city } = req.body ?? {};
 
   const errors = validateReading({ birthDate, zodiac, gender, city });
-  if (errors.length) {
-    return res.status(400).json({ error: 'Invalid input', details: errors });
+  const filteredErrors = errors.filter(e => !e.includes('city'));
+  if (filteredErrors.length) {
+    return res.status(400).json({ error: 'Invalid input', details: filteredErrors });
   }
 
   try {
