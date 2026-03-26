@@ -8,6 +8,7 @@ import {
   computeFourPillars,
   getDominantElement,
 } from './saju.js';
+import { fetchReading } from './api.js';
 
 // ── Loading overlay ───────────────────────────────────────────────────────────
 
@@ -88,14 +89,22 @@ function initForm() {
     if (!city)      { showToast('Please enter your city of origin.'); return; }
     if (!zodiac)    { showToast('Please select your zodiac hour.');   return; }
 
-    // Validate pillars are computable before navigating
+    // Validate locally first for instant feedback
     computeFourPillars({ birthDate, zodiac });
 
     showLoading();
-    setTimeout(() => {
-      const params = new URLSearchParams({ date: birthDate, zodiac, city, gender });
-      window.location.href = `result.html?${params}`;
-    }, 2200);
+
+    fetchReading({ birthDate, zodiac, gender, city })
+      .catch(() => {
+        // API unreachable — fall back to local computation silently
+        const pillars  = computeFourPillars({ birthDate, zodiac });
+        const dominant = getDominantElement(pillars);
+        return { input: { birthDate, zodiac, gender, city }, pillars, dominant };
+      })
+      .then(() => {
+        const params = new URLSearchParams({ date: birthDate, zodiac, city, gender });
+        window.location.href = `result.html?${params}`;
+      });
   });
 }
 

@@ -47,35 +47,59 @@ export function buildHeroHtml({ dominant, city, birthDate, gender }) {
 // ── Four Pillars section ──────────────────────────────────────────────────────
 
 const PILLAR_META = [
-  { label: 'Year Pillar',  role: 'Foundation'      },
-  { label: 'Month Pillar', role: 'Environment'     },
+  { label: 'Year Pillar',  role: 'Foundation'    },
+  { label: 'Month Pillar', role: 'Environment'   },
   { label: 'Day Pillar',   role: 'Core Identity', self: true },
-  { label: 'Hour Pillar',  role: 'Future Legacy'   },
+  { label: 'Hour Pillar',  role: 'Future Legacy' },
 ];
 
-export function buildPillarsHtml(pillars) {
-  return Object.values(pillars).map((p, i) => {
-    const meta   = PILLAR_META[i];
-    const color  = ELEMENT_COLOR[p.element] ?? 'bg-primary';
-    const isSelf = meta.self;
-    return `
-      <div class="${isSelf
-        ? 'bg-surface-container-lowest ring-1 ring-secondary/30 shadow-lg scale-105 z-10'
-        : 'bg-surface-container-low hover:bg-surface-container transition-colors'
-      } p-8 flex flex-col items-center space-y-6 rounded-lg">
-        <span class="text-xs font-sans uppercase tracking-widest ${isSelf ? 'text-secondary font-bold' : 'text-on-surface-variant'}">${meta.label}</span>
-        <div class="flex flex-col items-center">
-          <div class="w-16 h-16 ${color} rounded-full flex items-center justify-center text-white text-2xl font-serif mb-3 ${isSelf ? 'shadow-md shadow-secondary/20' : ''}">
-            ${ELEMENT_KANJI[p.element]}
-          </div>
-          <p class="font-serif text-2xl text-primary ${isSelf ? 'font-bold' : ''}">${p.element}</p>
-          <p class="text-sm text-on-surface-variant italic">${p.stem}${p.branch}</p>
+const PILLAR_META_2 = [
+  { label: 'Heavenly Stem', role: 'Yang Force'   },
+  { label: 'Heavenly Stem', role: 'Yang Force'   },
+  { label: 'Heavenly Stem', role: 'Yang Force', self: true },
+  { label: 'Heavenly Stem', role: 'Yang Force'   },
+];
+
+function _pillarCard(p, meta) {
+  const color  = ELEMENT_COLOR[p.element] ?? 'bg-primary';
+  const isSelf = meta.self;
+  return `
+    <div class="${isSelf
+      ? 'bg-surface-container-lowest ring-1 ring-secondary/30 shadow-lg scale-105 z-10'
+      : 'bg-surface-container-low hover:bg-surface-container transition-colors'
+    } p-8 flex flex-col items-center space-y-6 rounded-lg">
+      <span class="text-xs font-sans uppercase tracking-widest ${isSelf ? 'text-secondary font-bold' : 'text-on-surface-variant'}">${meta.label}</span>
+      <div class="flex flex-col items-center">
+        <div class="w-16 h-16 ${color} rounded-full flex items-center justify-center text-white text-2xl font-serif mb-3 ${isSelf ? 'shadow-md shadow-secondary/20' : ''}">
+          ${ELEMENT_KANJI[p.element]}
         </div>
-        <div class="pt-4 border-t ${isSelf ? 'border-secondary/20' : 'border-outline-variant/20'} w-full text-center">
-          <p class="text-[10px] uppercase tracking-[0.2em] ${isSelf ? 'text-secondary' : 'text-on-surface-variant'}">${meta.role}</p>
-        </div>
+        <p class="font-serif text-2xl text-primary ${isSelf ? 'font-bold' : ''}">${p.element}</p>
+        <p class="text-sm text-on-surface-variant italic">${p.stem}${p.branch}</p>
       </div>
-    `;
+      <div class="pt-4 border-t ${isSelf ? 'border-secondary/20' : 'border-outline-variant/20'} w-full text-center">
+        <p class="text-[10px] uppercase tracking-[0.2em] ${isSelf ? 'text-secondary' : 'text-on-surface-variant'}">${meta.role}</p>
+      </div>
+    </div>
+  `;
+}
+
+export function buildPillarsHtml(pillars) {
+  return Object.values(pillars).map((p, i) => _pillarCard(p, PILLAR_META[i])).join('');
+}
+
+/** Second row — shows branch (地支) perspective of each pillar */
+export function buildPillarsRow2Html(pillars) {
+  const BRANCH_ROLES = ['Ancestral Roots', 'Social Sphere', 'Inner Self', 'Hidden Potential'];
+  const entries = Object.values(pillars);
+  return entries.map((p, i) => {
+    const meta = {
+      label: 'Earthly Branch',
+      role:  BRANCH_ROLES[i],
+      self:  i === 2,
+    };
+    // Show branch element separately for the second row
+    const branchP = { ...p, stem: p.branch, branch: p.stem };
+    return _pillarCard(branchP, meta);
   }).join('');
 }
 
