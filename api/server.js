@@ -11,12 +11,15 @@
 const express = require('express');
 const cors    = require('cors');
 const { computeReading } = require('./saju');
+const usersRouter = require('./routes/users');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
+
+app.use('/api/users', usersRouter);
 
 // ── Validation ────────────────────────────────────────────────────────────────
 

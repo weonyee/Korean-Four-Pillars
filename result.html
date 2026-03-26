@@ -71,39 +71,39 @@
         <a href="index.html" class="hidden md:flex items-center gap-2 text-xs font-sans uppercase tracking-widest text-on-surface-variant hover:text-secondary transition-colors">
           <span class="material-symbols-outlined text-sm">arrow_back</span> New Reading
         </a>
-        <button class="p-2 rounded-full hover:bg-surface-container transition-colors" aria-label="Account">
+        <button class="p-2 rounded-full hover:bg-surface-container transition-colors" aria-label="Account" onclick="location.href='profile.html'">
           <span class="material-symbols-outlined text-[#171818]">account_circle</span>
         </button>
       </div>
     </div>
   </header>
 
-  <main class="flex-grow max-w-7xl mx-auto px-6 py-12 space-y-24 w-full">
+  <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 py-6 md:py-12 space-y-16 md:space-y-24 w-full">
 
     <!-- Hero -->
-    <section class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-end pt-8" id="result-hero">
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start pt-2 md:pt-8" id="result-hero">
       <!-- injected by result.js -->
     </section>
 
     <!-- Four Pillars -->
     <section class="space-y-12">
       <div class="flex items-baseline justify-between border-b border-outline-variant/20 pb-4">
-        <h2 class="font-serif text-3xl text-primary">The Four Pillars of Destiny</h2>
-        <span class="text-secondary text-sm font-sans uppercase tracking-tighter">Saju Pal-ja Analysis</span>
+        <h2 class="font-serif text-2xl md:text-3xl text-primary">The Four Pillars of Destiny</h2>
+        <span class="text-secondary text-sm font-sans uppercase tracking-tighter hidden md:block">Saju Pal-ja Analysis</span>
       </div>
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8" id="result-pillars">
+      <div class="grid grid-cols-4 gap-2 md:gap-8" id="result-pillars">
         <!-- injected by result.js -->
       </div>
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8" id="result-pillars-2">
+      <div class="grid grid-cols-4 gap-2 md:gap-8" id="result-pillars-2">
         <!-- injected by result.js -->
       </div>
     </section>
 
     <!-- Overall Destiny -->
-    <section class="grid grid-cols-1 md:grid-cols-12 gap-12 items-start">
-      <div class="md:col-span-12 mb-4 flex items-baseline justify-between border-b border-outline-variant/20 pb-4">
-        <h2 class="font-serif text-3xl text-primary">Overall Destiny</h2>
-        <span class="text-secondary text-sm font-sans uppercase tracking-tighter">Cosmic Alignment</span>
+    <section class="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+      <div class="md:col-span-12 flex items-baseline justify-between border-b border-outline-variant/20 pb-3">
+        <h2 class="font-serif text-2xl md:text-3xl text-primary">Overall Destiny</h2>
+        <span class="text-secondary text-sm font-sans uppercase tracking-tighter hidden md:block">Cosmic Alignment</span>
       </div>
       <div class="md:col-span-12 grid grid-cols-1 md:grid-cols-12 gap-12 items-start" id="result-destiny">
         <!-- injected by result.js -->
@@ -134,7 +134,7 @@
 
     <!-- Daily Wisdom -->
     <section class="max-w-4xl mx-auto pb-12">
-      <div class="bg-tertiary text-on-tertiary p-10 rounded-2xl relative overflow-hidden shadow-2xl">
+      <div class="bg-tertiary text-on-tertiary p-6 md:p-10 rounded-2xl relative overflow-hidden shadow-2xl">
         <div class="absolute right-0 top-0 bottom-0 w-1/3 flex items-center justify-center opacity-10 pointer-events-none" aria-hidden="true">
           <span class="font-serif text-[10rem] leading-none select-none text-secondary-fixed">道</span>
         </div>
@@ -147,18 +147,13 @@
   </main>
 
   <!-- Footer -->
-  <footer class="bg-[#f4f2ee] w-full py-12 px-8 border-t border-[#171818]/5">
-    <div class="flex flex-col md:flex-row justify-between items-center gap-8 max-w-7xl mx-auto">
-      <div class="flex flex-col gap-2 items-center md:items-start">
-        <span class="font-serif text-lg text-[#171818]">The Oracle</span>
-        <p class="font-sans text-xs uppercase tracking-widest text-[#171818]/50">© 2024 The Timeless Oracle. Traditional Wisdom, Modern Clarity.</p>
-      </div>
-      <nav class="flex flex-wrap justify-center gap-8" aria-label="Footer navigation">
-        <a class="font-sans text-xs uppercase tracking-widest text-[#171818]/50 hover:text-[#775a19] underline underline-offset-4 transition-all" href="#">Privacy Policy</a>
-        <a class="font-sans text-xs uppercase tracking-widest text-[#171818]/50 hover:text-[#775a19] underline underline-offset-4 transition-all" href="#">Terms of Service</a>
-        <a class="font-sans text-xs uppercase tracking-widest text-[#171818]/50 hover:text-[#775a19] underline underline-offset-4 transition-all" href="#">Philosophy</a>
-        <a class="font-sans text-xs uppercase tracking-widest text-[#171818]/50 hover:text-[#775a19] underline underline-offset-4 transition-all" href="#">Contact</a>
-      </nav>
+  <footer class="bg-[#f4f2ee] w-full py-3 px-6 border-t border-[#171818]/5">
+    <div class="flex flex-wrap justify-center items-center gap-x-6 gap-y-1 max-w-7xl mx-auto">
+      <span class="font-sans text-[10px] uppercase tracking-widest text-[#171818]/40">© 2024 The Timeless Oracle</span>
+      <a class="font-sans text-[10px] uppercase tracking-widest text-[#171818]/40 hover:text-[#775a19] transition-all" href="#">Privacy Policy</a>
+      <a class="font-sans text-[10px] uppercase tracking-widest text-[#171818]/40 hover:text-[#775a19] transition-all" href="#">Terms of Service</a>
+      <a class="font-sans text-[10px] uppercase tracking-widest text-[#171818]/40 hover:text-[#775a19] transition-all" href="#">Philosophy</a>
+      <a class="font-sans text-[10px] uppercase tracking-widest text-[#171818]/40 hover:text-[#775a19] transition-all" href="#">Contact</a>
     </div>
   </footer>
 
