@@ -4,6 +4,7 @@
   <meta charset="utf-8"/>
   <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
   <title>The Oracle | Your Destiny Chart</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔮</text></svg>"/>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -50,17 +51,23 @@
 </head>
 <body class="bg-background text-on-background font-body selection:bg-secondary-fixed selection:text-on-secondary-fixed min-h-screen flex flex-col">
 
-  <!-- Header -->
   <header class="bg-[#fbf9f5]/90 backdrop-blur-md w-full sticky top-0 z-50 shadow-sm">
-    <div class="flex justify-between items-center px-6 py-4 max-w-screen-2xl mx-auto">
-      <a class="text-2xl font-serif italic tracking-tighter text-[#171818]" href="index.html">The Oracle</a>
-      <nav class="hidden md:flex gap-8">
-        <!-- <a class="text-[#171818]/70 hover:text-[#775a19] transition-colors font-sans font-medium uppercase tracking-widest text-xs" href="#">Daily Reading</a> -->
-        <!-- <a class="text-[#775a19] font-medium border-b-2 border-[#775a19] pb-1 font-sans uppercase tracking-widest text-xs" href="#">Four Pillars</a> -->
-        <!-- <a class="text-[#171818]/70 hover:text-[#775a19] transition-colors font-sans font-medium uppercase tracking-widest text-xs" href="#">Compatibility</a> -->
-        <a class="text-[#171818]/70 hover:text-[#775a19] transition-colors font-sans font-medium uppercase tracking-widest text-xs" href="index.html">Consultation</a>
-      </nav>
-      <div class="flex items-center gap-4">
+    <div class="relative flex justify-between items-center px-4 py-4 max-w-screen-2xl mx-auto">
+      <!-- 좌측: 햄버거(모바일) | 로고+nav(데스크탑) -->
+      <div class="flex items-center gap-8">
+        <button id="mobile-menu-btn" class="p-2 rounded-full hover:bg-surface-container transition-colors md:hidden" aria-label="Open menu">
+          <span class="material-symbols-outlined text-[#171818]">menu</span>
+        </button>
+        <a class="text-2xl font-serif italic tracking-tighter text-[#171818] hidden md:block" href="index.html">The Oracle</a>
+        <nav class="hidden md:flex gap-8">
+          <!-- <a ... Daily Reading --> <!-- <a ... Four Pillars --> <!-- <a ... Compatibility -->
+          <a class="text-[#171818]/70 hover:text-[#775a19] transition-colors font-sans font-medium uppercase tracking-widest text-xs" href="index.html">Consultation</a>
+        </nav>
+      </div>
+      <!-- 모바일: 타이틀 가운데 -->
+      <a class="text-2xl font-serif italic tracking-tighter text-[#171818] absolute left-1/2 -translate-x-1/2 md:hidden" href="index.html">The Oracle</a>
+      <!-- 우측 -->
+      <div class="flex items-center gap-2">
         <a href="index.html" class="hidden md:flex items-center gap-2 text-xs font-sans uppercase tracking-widest text-on-surface-variant hover:text-secondary transition-colors">
           <span class="material-symbols-outlined text-sm">arrow_back</span> New Reading
         </a>
