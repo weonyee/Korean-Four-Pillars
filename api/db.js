@@ -10,7 +10,7 @@
  *   readings   — { readingId, userId, createdAt, input, pillars, dominant, detail }
  */
 
-const { randomUUID } = require('crypto');
+import { randomUUID } from 'crypto';
 
 // ── In-memory store ───────────────────────────────────────────────────────────
 const store = {
@@ -29,18 +29,6 @@ const store = {
  *   Readings — PK: userId (String), SK: readingId (String)
  *              GSI 불필요 — userId로 query 가능
  *
- * 예시 (getUser):
- *   const { DynamoDBDocumentClient, GetCommand } = require('@aws-sdk/lib-dynamodb');
- *   const client = DynamoDBDocumentClient.from(new DynamoDBClient({ region: process.env.AWS_REGION }));
- *
- *   async function getUser(userId) {
- *     const { Item } = await client.send(new GetCommand({
- *       TableName: process.env.USERS_TABLE,
- *       Key: { userId },
- *     }));
- *     return Item ?? null;
- *   }
- *
  * 환경변수 (.env):
  *   AWS_REGION=ap-northeast-2
  *   AWS_ACCESS_KEY_ID=...
@@ -51,11 +39,11 @@ const store = {
 
 // ── Users ─────────────────────────────────────────────────────────────────────
 
-async function getUser(userId) {
+export async function getUser(userId) {
   return store.users[userId] ?? null;
 }
 
-async function upsertUser(userId, profile) {
+export async function upsertUser(userId, profile) {
   const existing = store.users[userId];
   store.users[userId] = {
     userId,
@@ -68,7 +56,7 @@ async function upsertUser(userId, profile) {
 
 // ── Readings ──────────────────────────────────────────────────────────────────
 
-async function saveReading(userId, readingData) {
+export async function saveReading(userId, readingData) {
   const readingId = randomUUID();
   const record = {
     readingId,
@@ -80,18 +68,16 @@ async function saveReading(userId, readingData) {
   return record;
 }
 
-async function getReadings(userId, limit = 20) {
+export async function getReadings(userId, limit = 20) {
   return Object.values(store.readings)
     .filter(r => r.userId === userId)
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
     .slice(0, limit);
 }
 
-async function deleteReading(userId, readingId) {
+export async function deleteReading(userId, readingId) {
   const record = store.readings[readingId];
   if (!record || record.userId !== userId) return false;
   delete store.readings[readingId];
   return true;
 }
-
-module.exports = { getUser, upsertUser, saveReading, getReadings, deleteReading };

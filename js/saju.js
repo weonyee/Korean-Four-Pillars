@@ -1,7 +1,13 @@
 /**
  * saju.js — Pure Saju (四柱) calculation logic.
  * No DOM dependencies. All functions are stateless and exportable.
+ *
+ * 절기(節氣) 기준:
+ *   - 년주: 입춘(立春)에 바뀜
+ *   - 월주: 12절기마다 바뀜
  */
+
+import { getSajuYear, getSajuMonth } from './lunar.js';
 
 export const HEAVENLY_STEMS   = ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
 export const EARTHLY_BRANCHES = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
@@ -115,9 +121,11 @@ export function getYearPillar(year) {
   return _pillar(stemIdx, branchIdx);
 }
 
-/** @param {number} year @param {number} month — 1-based */
+/** @param {number} year — 사주 연도 (입춘 기준) @param {number} month — 사주 월 (인월=1, 축월=12) */
 export function getMonthPillar(year, month) {
+  // 지지: 인월(1)=寅(idx 2), 묘월(2)=卯(idx 3), …
   const branchIdx = (month + 1) % 12;
+  // 천간: 연간(年干) 기반 월간 산출
   const stemBase  = ((year - 4) % 5) * 2;
   const stemIdx   = ((stemBase + month - 1) % 10 + 10) % 10;
   return _pillar(stemIdx, branchIdx);
@@ -149,13 +157,16 @@ export function getHourPillar(zodiac, dayStem) {
 
 /**
  * Compute all four pillars from user input.
+ * 절기 기준으로 사주 연/월을 결정합니다.
  * @param {{ birthDate: string, zodiac: string }} input
  * @returns {{ year, month, day, hour }}
  */
 export function computeFourPillars({ birthDate, zodiac }) {
-  const date  = new Date(birthDate + 'T12:00:00');
-  const year  = getYearPillar(date.getFullYear());
-  const month = getMonthPillar(date.getFullYear(), date.getMonth() + 1);
+  const date      = new Date(birthDate + 'T12:00:00');
+  const sajuYear  = getSajuYear(date);
+  const sajuMonth = getSajuMonth(date);
+  const year  = getYearPillar(sajuYear);
+  const month = getMonthPillar(sajuYear, sajuMonth);
   const day   = getDayPillar(date);
   const hour  = getHourPillar(zodiac, day.stem);
   return { year, month, day, hour };

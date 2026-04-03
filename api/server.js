@@ -8,10 +8,10 @@
  * Run: node server.js
  */
 
-const express = require('express');
-const cors    = require('cors');
-const { computeReading } = require('./saju');
-const usersRouter = require('./routes/users');
+import express from 'express';
+import cors from 'cors';
+import { computeReading } from './saju.js';
+import usersRouter from './routes/users.js';
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -37,7 +37,7 @@ function validateReading({ birthDate, zodiac, gender, city }) {
   if (!gender || !['male','female'].includes(gender.toLowerCase()))
     errors.push('gender must be "male" or "female"');
   if (!city || typeof city !== 'string' || city.trim().length === 0)
-    errors.push('city is required');  // optional — kept for future use, not enforced
+    errors.push('city is required');
   return errors;
 }
 

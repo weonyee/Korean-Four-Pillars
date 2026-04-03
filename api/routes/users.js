@@ -14,8 +14,8 @@
  * When Cognito is integrated, replace :userId with req.user.sub from JWT.
  */
 
-const express = require('express');
-const { getUser, upsertUser, saveReading, getReadings, deleteReading } = require('../db');
+import express from 'express';
+import { getUser, upsertUser, saveReading, getReadings, deleteReading } from '../db.js';
 
 const router = express.Router({ mergeParams: true });
 
@@ -56,4 +56,4 @@ router.delete('/:userId/readings/:readingId', async (req, res) => {
   res.json({ success: true });
 });
 
-module.exports = router;
+export default router;
