@@ -8,6 +8,7 @@
  */
 
 import { getSajuYear, getSajuMonth } from './lunar.js';
+import { correctBirthTime } from './solar-time.js';
 
 export const HEAVENLY_STEMS   = ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
 export const EARTHLY_BRANCHES = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
@@ -158,18 +159,47 @@ export function getHourPillar(zodiac, dayStem) {
 /**
  * Compute all four pillars from user input.
  * 절기 기준으로 사주 연/월을 결정합니다.
- * @param {{ birthDate: string, zodiac: string }} input
- * @returns {{ year, month, day, hour }}
+ *
+ * birthTime + city가 제공되면 진태양시 보정을 적용하여 시주를 자동 결정합니다.
+ * 보정이 불가능하면 (도시 미지원 등) zodiac 값을 그대로 사용합니다.
+ *
+ * @param {{ birthDate: string, zodiac: string, birthTime?: string, city?: string }} input
+ * @returns {{ year, month, day, hour, solarTimeCorrection?: object }}
  */
-export function computeFourPillars({ birthDate, zodiac }) {
+export function computeFourPillars({ birthDate, zodiac, birthTime, city }) {
   const date      = new Date(birthDate + 'T12:00:00');
   const sajuYear  = getSajuYear(date);
   const sajuMonth = getSajuMonth(date);
   const year  = getYearPillar(sajuYear);
   const month = getMonthPillar(sajuYear, sajuMonth);
   const day   = getDayPillar(date);
-  const hour  = getHourPillar(zodiac, day.stem);
-  return { year, month, day, hour };
+
+  // 진태양시 보정: birthTime(HH:MM) + city가 있으면 자동 보정
+  let resolvedZodiac = zodiac;
+  let solarTimeCorrection = null;
+
+  if (birthTime && city) {
+    const [h, m] = birthTime.split(':').map(Number);
+    if (!isNaN(h) && !isNaN(m)) {
+      const correction = correctBirthTime(date, h, m, city);
+      if (correction) {
+        resolvedZodiac = correction.zodiac;
+        solarTimeCorrection = {
+          originalTime: birthTime,
+          correctedHour: correction.trueSolarHour,
+          correctedMinute: correction.trueSolarMinute,
+          correctionMinutes: correction.correctionMinutes,
+          originalZodiac: zodiac || null,
+          correctedZodiac: correction.zodiac,
+        };
+      }
+    }
+  }
+
+  const hour = getHourPillar(resolvedZodiac, day.stem);
+  const result = { year, month, day, hour };
+  if (solarTimeCorrection) result.solarTimeCorrection = solarTimeCorrection;
+  return result;
 }
 
 /**

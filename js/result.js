@@ -45,6 +45,7 @@ function getParams() {
     zodiac:    VALID_ZODIACS.has(zodiac) ? zodiac : DEFAULTS.zodiac,
     city:      p.get('city')?.trim()    || DEFAULTS.city,
     gender:    p.get('gender') === 'female' ? 'female' : DEFAULTS.gender,
+    birthTime: p.get('time') || '',
   };
 }
 

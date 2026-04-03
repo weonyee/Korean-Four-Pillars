@@ -1,52 +1,66 @@
 /**
- * api.js — Frontend API client.
- * Single place to change the base URL when deploying.
+ * api.js — Local storage adapter (API-compatible interface).
+ *
+ * API 서버 없이 프론트만 배포할 때 사용.
+ * 함수 시그니처는 API 버전과 동일하므로, 나중에 API 연동 시
+ * import 경로만 바꾸면 됩니다.
+ *
+ * 원본 API 클라이언트: git history 참조 또는 api.remote.js로 복원
  */
 
-const BASE_URL = 'http://localhost:3000';
+import { computeFourPillars, getDominantElement } from './saju.js';
 
-async function _request(path, options = {}) {
-  const res = await fetch(`${BASE_URL}${path}`, {
-    headers: { 'Content-Type': 'application/json' },
-    ...options,
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.error || `API error ${res.status}`);
-  }
-  return res.json();
-}
+const STORAGE_KEYS = {
+  profile:  (uid) => `oracle_profile_${uid}`,
+  readings: (uid) => `oracle_readings_${uid}`,
+};
+
+// ── Reading ───────────────────────────────────────────────────────────────────
 
 export async function fetchReading(params) {
-  return _request('/api/reading', { method: 'POST', body: JSON.stringify(params) });
+  const pillars  = computeFourPillars(params);
+  const dominant = getDominantElement(pillars);
+  return { pillars, dominant, input: params };
 }
 
 // ── Profile ───────────────────────────────────────────────────────────────────
 
 export async function fetchProfile(userId) {
-  return _request(`/api/users/${userId}/profile`);
+  const raw = localStorage.getItem(STORAGE_KEYS.profile(userId));
+  return raw ? JSON.parse(raw) : { profile: null };
 }
 
 export async function saveProfile(userId, profile) {
-  return _request(`/api/users/${userId}/profile`, {
-    method: 'PUT',
-    body: JSON.stringify(profile),
-  });
+  const data = { profile };
+  localStorage.setItem(STORAGE_KEYS.profile(userId), JSON.stringify(data));
+  return data;
 }
 
 // ── Reading history ───────────────────────────────────────────────────────────
 
+function _getReadings(userId) {
+  const raw = localStorage.getItem(STORAGE_KEYS.readings(userId));
+  return raw ? JSON.parse(raw) : [];
+}
+
+function _setReadings(userId, readings) {
+  localStorage.setItem(STORAGE_KEYS.readings(userId), JSON.stringify(readings));
+}
+
 export async function fetchHistory(userId) {
-  return _request(`/api/users/${userId}/readings`);
+  return _getReadings(userId);
 }
 
 export async function saveReadingToHistory(userId, reading) {
-  return _request(`/api/users/${userId}/readings`, {
-    method: 'POST',
-    body: JSON.stringify(reading),
-  });
+  const readings = _getReadings(userId);
+  const entry = { ...reading, readingId: crypto.randomUUID(), createdAt: new Date().toISOString() };
+  readings.unshift(entry);
+  _setReadings(userId, readings);
+  return entry;
 }
 
 export async function deleteReadingFromHistory(userId, readingId) {
-  return _request(`/api/users/${userId}/readings/${readingId}`, { method: 'DELETE' });
+  const readings = _getReadings(userId).filter(r => r.readingId !== readingId);
+  _setReadings(userId, readings);
+  return { ok: true };
 }
