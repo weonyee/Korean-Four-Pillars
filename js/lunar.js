@@ -211,4 +211,44 @@ export function getSajuMonth(date) {
   return result;
 }
 
+/**
+ * 주어진 날짜 이후 가장 가까운 절기 날짜를 반환합니다.
+ * @param {Date} date
+ * @returns {Date|null}
+ */
+export function getNextSolarTermDate(date) {
+  const year = date.getFullYear();
+  let closest = null;
+  // 올해 + 내년 절기에서 date 이후 첫 번째를 찾음
+  for (const y of [year, year + 1]) {
+    for (let i = 0; i < 12; i++) {
+      const d = getSolarTermDate(y, i);
+      if (d > date && (!closest || d < closest)) {
+        closest = d;
+      }
+    }
+  }
+  return closest;
+}
+
+/**
+ * 주어진 날짜 이전 가장 가까운 절기 날짜를 반환합니다.
+ * @param {Date} date
+ * @returns {Date|null}
+ */
+export function getPrevSolarTermDate(date) {
+  const year = date.getFullYear();
+  let closest = null;
+  // 올해 + 전년 절기에서 date 이전 마지막을 찾음
+  for (const y of [year - 1, year]) {
+    for (let i = 0; i < 12; i++) {
+      const d = getSolarTermDate(y, i);
+      if (d < date && (!closest || d > closest)) {
+        closest = d;
+      }
+    }
+  }
+  return closest;
+}
+
 export { SOLAR_TERMS };

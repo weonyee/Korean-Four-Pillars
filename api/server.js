@@ -47,7 +47,7 @@ app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok' });
 });
 
-app.post('/api/reading', (req, res) => {
+app.post('/api/reading', async (req, res) => {
   const { birthDate, zodiac, gender, city } = req.body ?? {};
 
   const errors = validateReading({ birthDate, zodiac, gender, city });
@@ -57,7 +57,7 @@ app.post('/api/reading', (req, res) => {
   }
 
   try {
-    const reading = computeReading({
+    const reading = await computeReading({
       birthDate,
       zodiac:  zodiac.toUpperCase(),
       gender:  gender.toLowerCase(),
