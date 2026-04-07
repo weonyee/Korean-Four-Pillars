@@ -1,0 +1,32 @@
+{
+  "name": "comfy-saju",
+  "version": "1.0.0",
+  "description": "사주(四柱) 기반 운세 서비스",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "build": "node build.mjs",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/weonyee/Korean-Four-Pillars.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/weonyee/Korean-Four-Pillars/issues"
+  },
+  "homepage": "https://github.com/weonyee/Korean-Four-Pillars#readme",
+  "dependencies": {
+    "@fullstackfamily/manseryeok": "^1.0.8",
+    "manseryeok": "^1.0.1"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.0"
+  }
+}

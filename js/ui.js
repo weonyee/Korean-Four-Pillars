@@ -7,10 +7,15 @@
 import {
   computeFourPillars,
   getDominantElement,
+  HEAVENLY_STEMS,
+  STEM_ELEMENTS,
+  BRANCH_ELEMENTS,
+  EARTHLY_BRANCHES,
 } from './saju.js';
 import { fetchReading } from './api.js';
 import { initCitySearch } from './city-search.js';
 import { correctBirthTime, getCityCoords } from './solar-time.js';
+import { getSajuYear, getSajuMonth } from './lunar.js';
 
 // ── Loading overlay ───────────────────────────────────────────────────────────
 
@@ -44,24 +49,12 @@ function initGenderSelector() {
       buttons.forEach(b => b.classList.remove('selected'));
       btn.classList.add('selected');
       hidden.value = btn.dataset.gender;
+      updateTestPreview();
     });
   });
 }
 
-// ── Zodiac selector ───────────────────────────────────────────────────────────
-
-function initZodiacSelector() {
-  const buttons = document.querySelectorAll('.zodiac-btn');
-  const hidden  = document.getElementById('selected-zodiac');
-
-  buttons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      buttons.forEach(b => b.classList.remove('selected'));
-      btn.classList.add('selected');
-      hidden.value = btn.dataset.zodiac;
-    });
-  });
-}
+// ── Zodiac selector (removed — time input determines hour pillar directly) ───
 
 // ── Mobile nav ────────────────────────────────────────────────────────────────
 
@@ -126,19 +119,157 @@ function updateSolarTimeHint() {
     }
   });
   if (hiddenZodiac) hiddenZodiac.value = correction.zodiac;
+  updateTestPreview();
+}
+
+function syncBirthTime() {
+  const hInput = document.getElementById('birth-time-hour');
+  const mInput = document.getElementById('birth-time-min');
+  const hidden = document.getElementById('birth-time');
+  if (!hInput || !mInput || !hidden) return;
+
+  const h = hInput.value.padStart(2, '0');
+  const m = (mInput.value || '0').padStart(2, '0');
+  hidden.value = hInput.value !== '' ? `${h}:${m}` : '';
+  updateSolarTimeHint();
 }
 
 function initSolarTimeCorrection() {
-  const timeInput = document.getElementById('birth-time');
+  const hInput   = document.getElementById('birth-time-hour');
+  const mInput   = document.getElementById('birth-time-min');
   const cityInput = document.getElementById('birth-city');
   const dateInput = document.getElementById('birth-date');
 
-  timeInput?.addEventListener('change', updateSolarTimeHint);
+  hInput?.addEventListener('input', syncBirthTime);
+  mInput?.addEventListener('input', syncBirthTime);
   cityInput?.addEventListener('change', updateSolarTimeHint);
-  dateInput?.addEventListener('change', updateSolarTimeHint);
+  dateInput?.addEventListener('change', () => { syncBirthTime(); updateSolarTimeHint(); });
 }
 
+// ── Test Preview Panel ────────────────────────────────────────────────────
 
+const ELEMENT_KO = { Wood: '목(木)', Fire: '화(火)', Earth: '토(土)', Metal: '금(金)', Water: '수(水)' };
+
+function updateTestPreview() {
+  const output = document.getElementById('test-preview-output');
+  const panel  = document.getElementById('test-preview-panel');
+  if (!output || !panel || panel.classList.contains('hidden')) return;
+
+  const birthDate = document.getElementById('birth-date')?.value;
+  const zodiac    = document.getElementById('selected-zodiac')?.value;
+  const city      = document.getElementById('birth-city')?.value.trim();
+  const birthTime = document.getElementById('birth-time')?.value || '';
+  const gender    = document.getElementById('selected-gender')?.value || 'male';
+
+  if (!birthDate || !zodiac) {
+    output.textContent = '  생년월일과 시간대를 선택하면 사주가 여기에 표시됩니다.';
+    return;
+  }
+
+  try {
+    const pillars  = computeFourPillars({ birthDate, zodiac, birthTime, city });
+    const dominant = getDominantElement(pillars);
+    const date     = new Date(birthDate + 'T12:00:00');
+    const sajuYear = getSajuYear(date);
+    const sajuMon  = getSajuMonth(date);
+
+    const lines = [];
+    const hr = '\u2500'.repeat(52);
+
+    lines.push(hr);
+    lines.push(`  ${birthDate} | ${gender === 'male' ? '남' : '여'} | ${city || '도시 미입력'}`);
+    lines.push(`  사주연도: ${sajuYear} (입춘 기준) | 사주월: ${sajuMon}월`);
+    lines.push(hr);
+
+    // 진태양시 보정
+    if (pillars.solarTimeCorrection) {
+      const c = pillars.solarTimeCorrection;
+      const sign = c.correctionMinutes >= 0 ? '+' : '';
+      const ch = String(c.correctedHour).padStart(2, '0');
+      const cm = String(c.correctedMinute).padStart(2, '0');
+      lines.push('');
+      lines.push('  진태양시 보정');
+      lines.push(`    입력: ${c.originalTime} -> 보정: ${ch}:${cm} (${sign}${c.correctionMinutes}분)`);
+      if (c.originalZodiac && c.originalZodiac !== c.correctedZodiac) {
+        lines.push(`    시진 변경: ${c.originalZodiac} -> ${c.correctedZodiac}`);
+      }
+    }
+
+    // 사주 테이블
+    const fmt = (p) => {
+      if (!p) return null;
+      const si = HEAVENLY_STEMS.indexOf(p.stem);
+      const bi = EARTHLY_BRANCHES.indexOf(p.branch);
+      return { stem: p.stem, branch: p.branch, stemEl: STEM_ELEMENTS[si], branchEl: BRANCH_ELEMENTS[bi] };
+    };
+    const y = fmt(pillars.year), m = fmt(pillars.month), d = fmt(pillars.day), h = fmt(pillars.hour);
+    const hasHour = h !== null;
+
+    lines.push('');
+    if (hasHour) {
+      lines.push('  ┌────────┬────────┬────────┬────────┐');
+      lines.push('  │  년주  │  월주  │  일주  │  시주  │');
+      lines.push('  ├────────┼────────┼────────┼────────┤');
+      lines.push(`  │  ${y.stem}    │  ${m.stem}    │  ${d.stem}    │  ${h.stem}    │ 천간`);
+      lines.push(`  │  ${y.branch}    │  ${m.branch}    │  ${d.branch}    │  ${h.branch}    │ 지지`);
+      lines.push('  └────────┴────────┴────────┴────────┘');
+    } else {
+      lines.push('  ┌────────┬────────┬────────┐');
+      lines.push('  │  년주  │  월주  │  일주  │');
+      lines.push('  ├────────┼────────┼────────┤');
+      lines.push(`  │  ${y.stem}    │  ${m.stem}    │  ${d.stem}    │ 천간`);
+      lines.push(`  │  ${y.branch}    │  ${m.branch}    │  ${d.branch}    │ 지지`);
+      lines.push('  └────────┴────────┴────────┘');
+      lines.push('  (시주: 생시 미입력)');
+    }
+
+    // 오행
+    lines.push('');
+    const stemEls = [y.stemEl, m.stemEl, d.stemEl];
+    const branchEls = [y.branchEl, m.branchEl, d.branchEl];
+    if (hasHour) { stemEls.push(h.stemEl); branchEls.push(h.branchEl); }
+    lines.push(`  천간 오행: ${stemEls.map(e => ELEMENT_KO[e]).join(' ')}`);
+    lines.push(`  지지 오행: ${branchEls.map(e => ELEMENT_KO[e]).join(' ')}`);
+    lines.push('');
+    lines.push(`  일간(Day Master): ${d.stem} (${ELEMENT_KO[d.stemEl]})`);
+    lines.push(`  주도 오행: ${ELEMENT_KO[dominant]}`);
+
+    // 오행 분포 (천간+지지)
+    const elCount = {};
+    const activePillars = hasHour ? [y, m, d, h] : [y, m, d];
+    activePillars.forEach(p => {
+      elCount[p.stemEl] = (elCount[p.stemEl] || 0) + 1;
+      elCount[p.branchEl] = (elCount[p.branchEl] || 0) + 1;
+    });
+    lines.push('');
+    lines.push('  오행 분포 (천간+지지):');
+    for (const [el, cnt] of Object.entries(elCount).sort((a, b) => b[1] - a[1])) {
+      const bar = '\u2588'.repeat(cnt) + '\u2591'.repeat(8 - cnt);
+      lines.push(`    ${ELEMENT_KO[el].padEnd(6)} ${bar} ${cnt}`);
+    }
+
+    output.textContent = lines.join('\n');
+  } catch (err) {
+    output.textContent = `  Error: ${err.message}`;
+  }
+}
+
+function initTestPreview() {
+  const toggle = document.getElementById('test-preview-toggle');
+  const panel  = document.getElementById('test-preview-panel');
+  const arrow  = document.getElementById('test-preview-arrow');
+  if (!toggle || !panel) return;
+
+  toggle.addEventListener('click', () => {
+    const isHidden = panel.classList.toggle('hidden');
+    if (arrow) arrow.style.transform = isHidden ? '' : 'rotate(180deg)';
+    if (!isHidden) updateTestPreview();
+  });
+
+  document.getElementById('birth-date')?.addEventListener('change', updateTestPreview);
+  document.getElementById('birth-time')?.addEventListener('change', updateTestPreview);
+  document.getElementById('birth-city')?.addEventListener('change', updateTestPreview);
+}
 
 // ── Form submission ───────────────────────────────────────────────────────────
 
@@ -154,8 +285,7 @@ function initForm() {
     const zodiac    = document.getElementById('selected-zodiac').value;
     const gender    = document.getElementById('selected-gender').value;
 
-    if (!birthDate) { showToast('Please enter your birth date.');     return; }
-    if (!zodiac)    { showToast('Please select your zodiac hour.');   return; }
+    if (!birthDate) { showToast('Please enter your birth date.'); return; }
 
     // Validate locally first for instant feedback
     computeFourPillars({ birthDate, zodiac, birthTime, city });
@@ -188,10 +318,10 @@ function initForm() {
 
 function init() {
   initGenderSelector();
-  initZodiacSelector();
   initMobileNav();
   initCityAutocomplete();
   initSolarTimeCorrection();
+  initTestPreview();
   initForm();
 }
 

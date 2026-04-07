@@ -80,6 +80,54 @@
 
   <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 py-6 md:py-12 space-y-16 md:space-y-24 w-full">
 
+    <!-- ═══ TEST PANEL (테스트용 사주 분석) ═══ -->
+    <section id="test-panel" class="bg-surface-container-low border border-outline-variant/30 rounded-2xl p-6 space-y-4">
+      <div class="flex items-center justify-between">
+        <h2 class="font-serif text-xl text-primary flex items-center gap-2">
+          <span class="material-symbols-outlined text-secondary">science</span>
+          사주 분석 테스트
+        </h2>
+        <button id="test-toggle" class="text-xs font-sans uppercase tracking-widest text-on-surface-variant hover:text-secondary transition-colors">접기 ▲</button>
+      </div>
+
+      <div id="test-form-area">
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+          <div>
+            <label class="block text-[10px] font-sans uppercase tracking-widest text-on-surface-variant mb-1">생년월일</label>
+            <input type="date" id="test-date" value="1990-05-15"
+              class="w-full border border-outline-variant/40 rounded-lg px-3 py-2 text-sm bg-surface-container-lowest focus:ring-2 focus:ring-secondary focus:border-secondary"/>
+          </div>
+          <div>
+            <label class="block text-[10px] font-sans uppercase tracking-widest text-on-surface-variant mb-1">출생시간</label>
+            <input type="time" id="test-time" value="14:00"
+              class="w-full border border-outline-variant/40 rounded-lg px-3 py-2 text-sm bg-surface-container-lowest focus:ring-2 focus:ring-secondary focus:border-secondary"/>
+          </div>
+          <div>
+            <label class="block text-[10px] font-sans uppercase tracking-widest text-on-surface-variant mb-1">성별</label>
+            <select id="test-gender"
+              class="w-full border border-outline-variant/40 rounded-lg px-3 py-2 text-sm bg-surface-container-lowest focus:ring-2 focus:ring-secondary focus:border-secondary">
+              <option value="male">남자</option>
+              <option value="female">여자</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[10px] font-sans uppercase tracking-widest text-on-surface-variant mb-1">출생도시</label>
+            <input type="text" id="test-city" value="Seoul" placeholder="Seoul"
+              class="w-full border border-outline-variant/40 rounded-lg px-3 py-2 text-sm bg-surface-container-lowest focus:ring-2 focus:ring-secondary focus:border-secondary"/>
+          </div>
+          <div class="flex items-end">
+            <button id="test-run"
+              class="w-full bg-primary text-on-primary px-4 py-2 rounded-lg font-sans font-bold uppercase tracking-widest text-xs hover:bg-secondary transition-all">
+              분석하기
+            </button>
+          </div>
+        </div>
+
+        <div id="test-output" class="mt-4 bg-surface-container-lowest border border-outline-variant/20 rounded-xl p-5 font-mono text-xs leading-relaxed whitespace-pre-wrap max-h-[70vh] overflow-y-auto hidden">
+        </div>
+      </div>
+    </section>
+
     <!-- Hero -->
     <section class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start pt-2 md:pt-8" id="result-hero">
       <!-- injected by result.js -->

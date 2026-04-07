@@ -207,52 +207,36 @@
             </div>
             <div class="space-y-3">
               <label for="birth-time" class="block text-xs uppercase tracking-widest font-sans font-bold text-primary">
-                Time of Birth <span class="normal-case tracking-normal font-normal text-on-surface-variant">(optional — auto-selects hour below)</span>
+                Time of Birth <span class="normal-case tracking-normal font-normal text-on-surface-variant">(optional, 24h — auto-selects hour below)</span>
               </label>
-              <div class="relative group">
-                <input id="birth-time" class="w-full bg-surface-container-low border-0 border-b-2 border-outline-variant focus:border-secondary focus:ring-0 py-3 px-0 transition-all font-sans font-bold text-primary/40" type="time"/>
+              <div class="relative group flex items-center gap-2">
+                <input id="birth-time-hour" class="w-16 bg-surface-container-low border-0 border-b-2 border-outline-variant focus:border-secondary focus:ring-0 py-3 px-0 text-center transition-all font-sans font-bold text-primary" type="number" min="0" max="23" placeholder="HH"/>
+                <span class="font-bold text-primary text-lg">:</span>
+                <input id="birth-time-min" class="w-16 bg-surface-container-low border-0 border-b-2 border-outline-variant focus:border-secondary focus:ring-0 py-3 px-0 text-center transition-all font-sans font-bold text-primary" type="number" min="0" max="59" placeholder="MM"/>
+                <span class="text-xs text-on-surface-variant font-sans ml-2">(00–23 : 00–59)</span>
+                <input id="birth-time" type="hidden" value=""/>
                 <div class="absolute bottom-0 left-0 w-0 h-[3px] bg-secondary group-focus-within:w-full transition-all duration-500"></div>
               </div>
               <p id="solar-time-hint" class="text-[10px] font-sans text-on-surface-variant italic hidden"></p>
             </div>
           </div>
 
-          <!-- Zodiac hour -->
-          <fieldset>
-            <div class="flex flex-wrap justify-between items-end gap-2 mb-4">
-              <legend class="text-xs uppercase tracking-widest font-sans font-bold text-primary">Hour of Alignment</legend>
-              <span class="text-[10px] text-on-surface-variant font-sans italic">Traditional 12-Animal Cycle</span>
-            </div>
-            <input type="hidden" id="selected-zodiac" value=""/>
-            <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
-              <button data-zodiac="RAT"     class="zodiac-btn group flex flex-col items-center p-2 sm:p-3 rounded-lg border border-outline-variant/20 hover:border-secondary transition-all hover:bg-secondary-container/10" type="button"><span class="zodiac-emoji text-xl sm:text-2xl mb-1 opacity-70">🐀</span><span class="text-[9px] sm:text-[10px] font-sans font-bold text-primary">RAT</span><span class="text-xs text-on-surface-variant">23-01</span></button>
-              <button data-zodiac="OX"      class="zodiac-btn group flex flex-col items-center p-2 sm:p-3 rounded-lg border border-outline-variant/20 hover:border-secondary transition-all hover:bg-secondary-container/10" type="button"><span class="zodiac-emoji text-xl sm:text-2xl mb-1 opacity-70">🐂</span><span class="text-[9px] sm:text-[10px] font-sans font-bold text-primary">OX</span><span class="text-xs text-on-surface-variant">01-03</span></button>
-              <button data-zodiac="TIGER"   class="zodiac-btn group flex flex-col items-center p-2 sm:p-3 rounded-lg border border-outline-variant/20 hover:border-secondary transition-all hover:bg-secondary-container/10" type="button"><span class="zodiac-emoji text-xl sm:text-2xl mb-1 opacity-70">🐅</span><span class="text-[9px] sm:text-[10px] font-sans font-bold text-primary">TIGER</span><span class="text-xs text-on-surface-variant">03-05</span></button>
-              <button data-zodiac="RABBIT"  class="zodiac-btn group flex flex-col items-center p-2 sm:p-3 rounded-lg border border-outline-variant/20 hover:border-secondary transition-all hover:bg-secondary-container/10" type="button"><span class="zodiac-emoji text-xl sm:text-2xl mb-1 opacity-70">🐇</span><span class="text-[9px] sm:text-[10px] font-sans font-bold text-primary">RABBIT</span><span class="text-xs text-on-surface-variant">05-07</span></button>
-              <button data-zodiac="DRAGON"  class="zodiac-btn group flex flex-col items-center p-2 sm:p-3 rounded-lg border border-outline-variant/20 hover:border-secondary transition-all hover:bg-secondary-container/10" type="button"><span class="zodiac-emoji text-xl sm:text-2xl mb-1 opacity-70">🐉</span><span class="text-[9px] sm:text-[10px] font-sans font-bold text-primary">DRAGON</span><span class="text-xs text-on-surface-variant">07-09</span></button>
-              <button data-zodiac="SNAKE"   class="zodiac-btn group flex flex-col items-center p-2 sm:p-3 rounded-lg border border-outline-variant/20 hover:border-secondary transition-all hover:bg-secondary-container/10" type="button"><span class="zodiac-emoji text-xl sm:text-2xl mb-1 opacity-70">🐍</span><span class="text-[9px] sm:text-[10px] font-sans font-bold text-primary">SNAKE</span><span class="text-xs text-on-surface-variant">09-11</span></button>
-              <button data-zodiac="HORSE"   class="zodiac-btn group flex flex-col items-center p-2 sm:p-3 rounded-lg border border-outline-variant/20 hover:border-secondary transition-all hover:bg-secondary-container/10" type="button"><span class="zodiac-emoji text-xl sm:text-2xl mb-1 opacity-70">🐎</span><span class="text-[9px] sm:text-[10px] font-sans font-bold text-primary">HORSE</span><span class="text-xs text-on-surface-variant">11-13</span></button>
-              <button data-zodiac="SHEEP"   class="zodiac-btn group flex flex-col items-center p-2 sm:p-3 rounded-lg border border-outline-variant/20 hover:border-secondary transition-all hover:bg-secondary-container/10" type="button"><span class="zodiac-emoji text-xl sm:text-2xl mb-1 opacity-70">🐑</span><span class="text-[9px] sm:text-[10px] font-sans font-bold text-primary">SHEEP</span><span class="text-xs text-on-surface-variant">13-15</span></button>
-              <button data-zodiac="MONKEY"  class="zodiac-btn group flex flex-col items-center p-2 sm:p-3 rounded-lg border border-outline-variant/20 hover:border-secondary transition-all hover:bg-secondary-container/10" type="button"><span class="zodiac-emoji text-xl sm:text-2xl mb-1 opacity-70">🐒</span><span class="text-[9px] sm:text-[10px] font-sans font-bold text-primary">MONKEY</span><span class="text-xs text-on-surface-variant">15-17</span></button>
-              <button data-zodiac="ROOSTER" class="zodiac-btn group flex flex-col items-center p-2 sm:p-3 rounded-lg border border-outline-variant/20 hover:border-secondary transition-all hover:bg-secondary-container/10" type="button"><span class="zodiac-emoji text-xl sm:text-2xl mb-1 opacity-70">🐓</span><span class="text-[9px] sm:text-[10px] font-sans font-bold text-primary">ROOSTER</span><span class="text-xs text-on-surface-variant">17-19</span></button>
-              <button data-zodiac="DOG"     class="zodiac-btn group flex flex-col items-center p-2 sm:p-3 rounded-lg border border-outline-variant/20 hover:border-secondary transition-all hover:bg-secondary-container/10" type="button"><span class="zodiac-emoji text-xl sm:text-2xl mb-1 opacity-70">🐕</span><span class="text-[9px] sm:text-[10px] font-sans font-bold text-primary">DOG</span><span class="text-xs text-on-surface-variant">19-21</span></button>
-              <button data-zodiac="PIG"     class="zodiac-btn group flex flex-col items-center p-2 sm:p-3 rounded-lg border border-outline-variant/20 hover:border-secondary transition-all hover:bg-secondary-container/10" type="button"><span class="zodiac-emoji text-xl sm:text-2xl mb-1 opacity-70">🐖</span><span class="text-[9px] sm:text-[10px] font-sans font-bold text-primary">PIG</span><span class="text-xs text-on-surface-variant">21-23</span></button>
-            </div>
-          </fieldset>
+          <input type="hidden" id="selected-zodiac" value="HORSE"/>
 
           <!-- Submit -->
         </form>
       </div>
 
-      <!-- Submit button (outside form card) -->
-      <div class="mt-10 flex flex-col items-center gap-4">
-        <button form="saju-form" class="w-full bg-primary text-on-primary py-4 px-8 rounded-full font-sans font-bold uppercase tracking-[0.15em] shadow-lg hover:bg-secondary transition-all active:scale-95 group flex items-center justify-center gap-3" type="submit">
-          View My Fortune
-          <span class="material-symbols-outlined text-secondary group-hover:text-primary transition-colors">auto_awesome</span>
+      <!-- Test Preview Panel -->
+      <div class="mt-10">
+        <button id="test-preview-toggle" type="button" class="w-full flex items-center justify-center gap-2 py-2 text-[10px] uppercase tracking-[0.2em] font-sans font-bold text-on-surface-variant/50 hover:text-secondary transition-colors">
+          <span class="material-symbols-outlined text-[16px]">bug_report</span>
+          Debug Preview
+          <span id="test-preview-arrow" class="material-symbols-outlined text-[16px] transition-transform" style="transform:rotate(180deg)">expand_more</span>
         </button>
-        <p class="text-[10px] text-on-surface-variant font-sans uppercase tracking-widest text-center opacity-60">
-          By continuing, you agree to allow our algorithm to compute your cosmic elements.
-        </p>
+        <div id="test-preview-panel" class="mt-2">
+          <pre id="test-preview-output" class="bg-primary text-[#a8e6cf] text-xs font-mono p-5 rounded-xl overflow-x-auto whitespace-pre leading-relaxed max-h-[600px] overflow-y-auto"></pre>
+        </div>
       </div>
 
       <!-- Extra section -->
@@ -286,6 +270,17 @@
           </div>
           <span class="material-symbols-outlined text-outline-variant group-hover:text-secondary transition-colors shrink-0">chevron_right</span>
         </div>
+      </div>
+
+      <!-- Submit button -->
+      <div class="mt-10 flex flex-col items-center gap-4">
+        <button form="saju-form" class="w-full bg-primary text-on-primary py-4 px-8 rounded-full font-sans font-bold uppercase tracking-[0.15em] shadow-lg hover:bg-secondary transition-all active:scale-95 group flex items-center justify-center gap-3" type="submit">
+          View My Fortune
+          <span class="material-symbols-outlined text-secondary group-hover:text-primary transition-colors">auto_awesome</span>
+        </button>
+        <p class="text-[10px] text-on-surface-variant font-sans uppercase tracking-widest text-center opacity-60">
+          By continuing, you agree to allow our algorithm to compute your cosmic elements.
+        </p>
       </div>
     </section>
 

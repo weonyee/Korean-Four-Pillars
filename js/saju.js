@@ -1,14 +1,15 @@
 /**
- * saju.js — Pure Saju (四柱) calculation logic.
- * No DOM dependencies. All functions are stateless and exportable.
+ * saju.js — Saju (四柱) calculation logic.
+ * @fullstackfamily/manseryeok 패키지 기반 (고영창 진짜만세력 + KASI 데이터).
  *
- * 절기(節氣) 기준:
- *   - 년주: 입춘(立春)에 바뀜
- *   - 월주: 12절기마다 바뀜
+ * 특징:
+ *   - 입춘(立春) 기준 년주 변경
+ *   - 절기(節氣) 기준 월주 변경
+ *   - 진태양시(眞太陽時) 자동 보정
+ *   - KASI(한국천문연구원) 데이터 기반 정확도
  */
 
-import { getSajuYear, getSajuMonth } from './lunar.js';
-import { correctBirthTime } from './solar-time.js';
+import { calculateSaju as _mCalc } from '@fullstackfamily/manseryeok';
 
 export const HEAVENLY_STEMS   = ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
 export const EARTHLY_BRANCHES = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
@@ -35,12 +36,10 @@ export const ELEMENT_DESCRIPTIONS = {
   Water: 'Intuition and depth guide your fate. You are perceptive, fluid, and carry the wisdom of hidden currents.',
 };
 
-/** Element → kanji character for display */
 export const ELEMENT_KANJI = {
   Wood: '木', Fire: '火', Earth: '土', Metal: '金', Water: '水',
 };
 
-/** Element → accent color class */
 export const ELEMENT_COLOR = {
   Wood:  'bg-[#2d6a4f]',
   Fire:  'bg-[#ba1a1a]',
@@ -113,92 +112,67 @@ export function getLuckCycles(birthYear) {
   }));
 }
 
-// ── Pillar calculators ────────────────────────────────────────────────────────
+// ── Pillar calculation (manseryeok 기반) ─────────────────────────────────────
 
-/** @param {number} year — Gregorian year */
-export function getYearPillar(year) {
-  const stemIdx   = ((year - 4) % 10 + 10) % 10;
-  const branchIdx = ((year - 4) % 12 + 12) % 12;
-  return _pillar(stemIdx, branchIdx);
-}
-
-/** @param {number} year — 사주 연도 (입춘 기준) @param {number} month — 사주 월 (인월=1, 축월=12) */
-export function getMonthPillar(year, month) {
-  // 지지: 인월(1)=寅(idx 2), 묘월(2)=卯(idx 3), …
-  const branchIdx = (month + 1) % 12;
-  // 천간: 연간(年干) 기반 월간 산출
-  const stemBase  = ((year - 4) % 5) * 2;
-  const stemIdx   = ((stemBase + month - 1) % 10 + 10) % 10;
-  return _pillar(stemIdx, branchIdx);
-}
-
-/** @param {Date} date */
-export function getDayPillar(date) {
-  const { y, m, d } = { y: date.getFullYear(), m: date.getMonth() + 1, d: date.getDate() };
-  const jdn = Math.floor((1461 * (y + 4800 + Math.floor((m - 14) / 12))) / 4)
-    + Math.floor((367 * (m - 2 - 12 * Math.floor((m - 14) / 12))) / 12)
-    - Math.floor((3 * Math.floor((y + 4900 + Math.floor((m - 14) / 12)) / 100)) / 4)
-    + d - 32075;
-  const stemIdx   = ((jdn + 9) % 10 + 10) % 10;
-  const branchIdx = ((jdn + 1) % 12 + 12) % 12;
-  return _pillar(stemIdx, branchIdx);
-}
-
-/**
- * @param {string} zodiac — e.g. 'RAT'
- * @param {string} dayStem — heavenly stem character of the day pillar
- */
-export function getHourPillar(zodiac, dayStem) {
-  const branchIdx = ZODIAC_BRANCH_INDEX[zodiac] ?? 0;
-  const dayStemIdx = HEAVENLY_STEMS.indexOf(dayStem);
-  const stemBase  = (dayStemIdx % 5) * 2;
-  const stemIdx   = ((stemBase + branchIdx) % 10 + 10) % 10;
-  return _pillar(stemIdx, branchIdx);
+/** 한자 2글자(간지) → 내부 pillar 객체로 변환 */
+function _convertHanja(hanja) {
+  const stem   = hanja[0];
+  const branch = hanja[1];
+  const stemIdx = HEAVENLY_STEMS.indexOf(stem);
+  return {
+    stem,
+    branch,
+    element: STEM_ELEMENTS[stemIdx],
+  };
 }
 
 /**
  * Compute all four pillars from user input.
- * 절기 기준으로 사주 연/월을 결정합니다.
+ * @fullstackfamily/manseryeok의 calculateSaju를 사용합니다.
+ * 입춘 기준 년주, 절기 기준 월주, 진태양시 보정을 자동 처리합니다.
  *
- * birthTime + city가 제공되면 진태양시 보정을 적용하여 시주를 자동 결정합니다.
- * 보정이 불가능하면 (도시 미지원 등) zodiac 값을 그대로 사용합니다.
- *
- * @param {{ birthDate: string, zodiac: string, birthTime?: string, city?: string }} input
+ * @param {{ birthDate: string, birthTime?: string, city?: string, gender?: string, zodiac?: string }} input
  * @returns {{ year, month, day, hour, solarTimeCorrection?: object }}
  */
-export function computeFourPillars({ birthDate, zodiac, birthTime, city }) {
-  const date      = new Date(birthDate + 'T12:00:00');
-  const sajuYear  = getSajuYear(date);
-  const sajuMonth = getSajuMonth(date);
-  const year  = getYearPillar(sajuYear);
-  const month = getMonthPillar(sajuYear, sajuMonth);
-  const day   = getDayPillar(date);
+export function computeFourPillars({ birthDate, birthTime, city, gender, zodiac }) {
+  const date = new Date(birthDate + 'T12:00:00');
+  const y  = date.getFullYear();
+  const mo = date.getMonth() + 1;
+  const d  = date.getDate();
 
-  // 진태양시 보정: birthTime(HH:MM) + city가 있으면 자동 보정
-  let resolvedZodiac = zodiac;
-  let solarTimeCorrection = null;
-
-  if (birthTime && city) {
-    const [h, m] = birthTime.split(':').map(Number);
-    if (!isNaN(h) && !isNaN(m)) {
-      const correction = correctBirthTime(date, h, m, city);
-      if (correction) {
-        resolvedZodiac = correction.zodiac;
-        solarTimeCorrection = {
-          originalTime: birthTime,
-          correctedHour: correction.trueSolarHour,
-          correctedMinute: correction.trueSolarMinute,
-          correctionMinutes: correction.correctionMinutes,
-          originalZodiac: zodiac || null,
-          correctedZodiac: correction.zodiac,
-        };
-      }
-    }
+  // 시간 결정
+  let hour = null;
+  if (birthTime) {
+    const [h] = birthTime.split(':').map(Number);
+    if (!isNaN(h)) hour = h;
+  } else if (zodiac) {
+    const branchIdx = ZODIAC_BRANCH_INDEX[zodiac] ?? 6;
+    const hourStarts = [23,1,3,5,7,9,11,13,15,17,19,21];
+    hour = hourStarts[branchIdx];
   }
 
-  const hour = getHourPillar(resolvedZodiac, day.stem);
-  const result = { year, month, day, hour };
-  if (solarTimeCorrection) result.solarTimeCorrection = solarTimeCorrection;
+  // manseryeok 계산 (입춘 기준 + 절기 기준 + 진태양시 자동 보정)
+  const mResult = _mCalc(y, mo, d, hour ?? 12);
+
+  const result = {
+    year:  _convertHanja(mResult.yearPillarHanja),
+    month: _convertHanja(mResult.monthPillarHanja),
+    day:   _convertHanja(mResult.dayPillarHanja),
+    hour:  hour !== null ? _convertHanja(mResult.hourPillarHanja) : null,
+  };
+
+  // 진태양시 보정 정보 전달
+  if (hour !== null && mResult.isTimeCorrected && mResult.correctedTime) {
+    result.solarTimeCorrection = {
+      originalTime: birthTime || `${hour}:00`,
+      correctedHour: mResult.correctedTime.hour,
+      correctedMinute: mResult.correctedTime.minute,
+      correctionMinutes: null,
+      originalZodiac: null,
+      correctedZodiac: null,
+    };
+  }
+
   return result;
 }
 
@@ -210,17 +184,7 @@ export function computeFourPillars({ birthDate, zodiac, birthTime, city }) {
 export function getDominantElement(pillars) {
   const counts = {};
   Object.values(pillars).forEach(p => {
-    counts[p.element] = (counts[p.element] || 0) + 1;
+    if (p?.element) counts[p.element] = (counts[p.element] || 0) + 1;
   });
   return Object.entries(counts).sort((a, b) => b[1] - a[1])[0][0];
-}
-
-// ── Internal helper ───────────────────────────────────────────────────────────
-
-function _pillar(stemIdx, branchIdx) {
-  return {
-    stem:    HEAVENLY_STEMS[stemIdx],
-    branch:  EARTHLY_BRANCHES[branchIdx],
-    element: STEM_ELEMENTS[stemIdx],
-  };
 }
