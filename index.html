@@ -235,7 +235,16 @@
           <span id="test-preview-arrow" class="material-symbols-outlined text-[16px] transition-transform" style="transform:rotate(180deg)">expand_more</span>
         </button>
         <div id="test-preview-panel" class="mt-2">
+          <div class="flex gap-2 mb-3">
+            <button id="test-calc-btn" type="button" class="flex-1 bg-primary text-on-primary py-3 px-6 rounded-full font-sans font-bold uppercase tracking-widest shadow hover:bg-secondary transition-all active:scale-95">
+              사주 계산
+            </button>
+            <button id="llm-interpret-btn" type="button" class="flex-1 bg-secondary text-on-secondary py-3 px-6 rounded-full font-sans font-bold uppercase tracking-widest shadow hover:bg-primary transition-all active:scale-95 hidden">
+              AI 사주 풀이 생성
+            </button>
+          </div>
           <pre id="test-preview-output" class="bg-primary text-[#a8e6cf] text-xs font-mono p-5 rounded-xl overflow-x-auto whitespace-pre leading-relaxed max-h-[600px] overflow-y-auto"></pre>
+          <pre id="llm-interpretation-area" class="hidden mt-3 bg-surface-container-lowest text-primary text-sm font-sans p-6 rounded-xl overflow-x-auto whitespace-pre-wrap leading-relaxed max-h-[800px] overflow-y-auto border border-outline-variant/20"></pre>
         </div>
       </div>
 

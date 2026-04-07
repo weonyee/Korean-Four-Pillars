@@ -152,17 +152,18 @@ export function computeFourPillars({ birthDate, birthTime, city, gender, zodiac 
   }
 
   // manseryeok 계산 (입춘 기준 + 절기 기준 + 진태양시 자동 보정)
-  const mResult = _mCalc(y, mo, d, hour ?? 12);
+  // 시간 미입력 시 인자를 넘기지 않아 시주 null 반환
+  const mResult = hour !== null ? _mCalc(y, mo, d, hour) : _mCalc(y, mo, d);
 
   const result = {
     year:  _convertHanja(mResult.yearPillarHanja),
     month: _convertHanja(mResult.monthPillarHanja),
     day:   _convertHanja(mResult.dayPillarHanja),
-    hour:  hour !== null ? _convertHanja(mResult.hourPillarHanja) : null,
+    hour:  mResult.hourPillarHanja ? _convertHanja(mResult.hourPillarHanja) : null,
   };
 
   // 진태양시 보정 정보 전달
-  if (hour !== null && mResult.isTimeCorrected && mResult.correctedTime) {
+  if (mResult.isTimeCorrected && mResult.correctedTime) {
     result.solarTimeCorrection = {
       originalTime: birthTime || `${hour}:00`,
       correctedHour: mResult.correctedTime.hour,
